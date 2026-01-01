@@ -1,163 +1,289 @@
-# ComponentWizard – Master Task Tracker (Cursor-Ready)
+# Task List for Building Personal Portfolio Site
 
-## EPIC 0 – Project Setup & Foundation (Day 0–1)
-### PR #1: Initialize Vite + React + TypeScript + Tailwind + Shadcn
-- [ ] pnpm create vite component-wizard -- --template react-ts
-- [ ] pnpm dlx shadcn@latest init (yes to all defaults + TypeScript strict)
-- [ ] Add Tailwind 4 config (tailwind.config.ts with proper content paths)
-- [ ] Add clsx + tailwind-merge → utils/cn.ts
-- [ ] Add Zod + React Hook Form
-- [ ] Add Zustand store (src/store/useWizardStore.ts)
-- [ ] Add .env.example with VITE_GROQ_API_KEY
--80% of foundation done
+This task list is structured into **Epics**, **Pull Requests (PRs)**, **Commits**, and **Subtasks**. Each commit includes a suggested commit message and a list of subtasks phrased as detailed, actionable instructions. These subtasks are designed to be copied and pasted directly into Cursor IDE (e.g., into the Composer or chat mode) to guide the AI in generating or applying the code changes for that commit. For example, paste something like: "Apply the following changes: 1. In src/main.tsx, import BrowserRouter from 'react-router-dom'. 2. Wrap the App component with BrowserRouter."
 
-### PR #2: Routing & Layout Skeleton
-- [ ] Install tanstack/router or wouter
-- [ ] Create routes: /, /wizard/[id], /wizard/new
-- [ ] Create AppLayout with Header + main container (shadcn)
-- [ ] Create WizardLayout with Step indicator sidebar
-- [ ] Add global fonts (Geist or Inter via @fontsource)
+Assume we're working on the existing bootstrapped repo (Vite + React + TS + Tailwind + ShadCN). Use feature branches like `feature/epic1-pr1.1` for each PR. After completing subtasks in Cursor, stage changes, commit with the message, and push.
 
-### PR #3: ESLint + Prettier + Husky (S.O.L.I.D hygiene)
-- [ ] eslint-config-custom (React + TS + Tailwind)
-- [ ] Add lint-staged + husky
-- [ ] Add simple pre-commit hook
+## Epic 1: Routing and Shared Layout
+**Description**: Set up client-side routing and a shared layout for consistent navigation across the site.
 
-## EPIC 1 – Multi-Step Wizard Core (Day 1–4)
-### PR #10: Wizard State Management (Zustand) – SINGLE SOURCE OF TRUTH
-- [ ] Create src/store/useWizardStore.ts
-  - [ ] Steps enum (1–7)
-  - [ ] WizardData interface (name, figmaUrl, images[], description, colors, hooks[], components[], generatedCode)
-  - [ ] Actions: nextStep, prevStep, updateData, reset
-  - [ ] Persist to localStorage (optional v1)
+### PR 1.1: Install and Configure React Router
+**PR Description**: Add React Router for SPA navigation and define basic routes.
+**Branch**: feature/epic1-pr1.1
 
-### PR #11: Step Components Skeleton (Modular – each step is its own folder)
-- [ ] src/components/wizard/steps/Step1_ProjectName.tsx
-- [ ] src/components/wizard/steps/Step2_DesignInput.tsx
-- [ ] src/components/wizard/steps/Step3_Description.tsx
-- [ ] src/components/wizard/steps/Step4_Colors.tsx
-- [ ] src/components/wizard/steps/Step5_Hooks.tsx
-- [ ] src/components/wizard/steps/Step6_Components.tsx
-- [ ] src/components/wizard/steps/Step7_Preview.tsx
-- [ ] src/components/wizard/StepLayout.tsx (shared wrapper with navigation)
+- **Commit 1: Install React Router dependencies**
+  **Commit Message**: "chore: install react-router-dom and types"
+  **Subtasks** (paste into Cursor IDE):
+  1. Run the command in the terminal: npm install react-router-dom @types/react-router-dom
+  2. Update package.json to include the new dependencies if not automatically added.
 
-### PR #12: Step Indicator Sidebar (Visual progress)
-- [ ] Create <WizardStepsSidebar /> with active step highlight
-- [ ] Mobile-friendly collapse
+- **Commit 2: Set up router configuration**
+  **Commit Message**: "feat: add router setup in main.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. In src/main.tsx, import { BrowserRouter } from 'react-router-dom'.
+  2. Wrap the existing <App /> component inside <BrowserRouter> like: <BrowserRouter><App /></BrowserRouter>.
+  3. Ensure the root.render() call uses StrictMode if present.
 
-## EPIC 2 – Design Input & Vision Upload (Day 2–5)
-### PR #20: File Upload + Figma URL Parser
-- [ ] Drag & drop + click upload (multiple images)
-- [ ] Paste Figma frame URL → auto screenshot via https://api.figma.com/v1/images/ (need access token UI later)
-- [ ] Store images as base64 or File objects in store
-- [ ] Preview thumbnails grid
+- **Commit 3: Define initial routes**
+  **Commit Message**: "feat: create router.tsx with basic routes"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create a new file src/router.tsx.
+  2. In src/router.tsx, import { createBrowserRouter, RouterProvider } from 'react-router-dom'.
+  3. Import App from './App' (or adjust to Home page if App is layout).
+  4. Define const router = createBrowserRouter([{ path: '/', element: <App /> }, { path: '/about', element: <div>About Page Placeholder</div> }, { path: '/projects', element: <div>Projects Page Placeholder</div> }, { path: '/contact', element: <div>Contact Page Placeholder</div> }]);
+  5. Export the router.
+  6. In src/main.tsx, replace BrowserRouter with <RouterProvider router={router} />.
 
-### PR #21: Groq Vision Extraction Service (Open Interface – Dependency Inversion)
-- [ ] src/lib/groq/visionExtract.ts
-  - [ ] Function: extractDesignFeatures(images: string[], description: string)
-  - [ ] Prompt v1: “Extract layout, colors, typography, spacing, shadows, component hierarchy…”
-  - [ ] Return structured JSON (Layout, Colors[], Typography, etc.)
-  - [ ] Cache result in store
+- **Commit 4: Create main layout component**
+  **Commit Message**: "feat: add MainLayout.tsx for shared layout"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create a new directory src/layouts if it doesn't exist.
+  2. Create src/layouts/MainLayout.tsx.
+  3. In MainLayout.tsx, import { Outlet } from 'react-router-dom'.
+  4. Define a functional component: export const MainLayout = () => { return (<div className="min-h-screen flex flex-col"><main className="flex-grow"><Outlet /></main></div>); };
+  5. Update src/router.tsx to wrap routes with MainLayout, e.g., { path: '/', element: <MainLayout />, children: [{ index: true, element: <App /> }, ... ] }.
 
-## EPIC 3 – Color & Theme System (Day 4–6)
-### PR #30: Interactive Color Picker (shadcn + react-colorful)
-- [ ] Install react-colorful
-- [ ] Build <ColorPicker label="Primary" /> reusable component
-- [ ] Auto-generate Tailwind theme (extend tailwind.config with primary/secondary/etc)
-- [ ] Live preview of Button/Card with selected colors
-- [ ] Export as CSS variables + Tailwind config snippet
+### PR 1.2: Implement Responsive Navbar and Footer
+**PR Description**: Build header and footer components using ShadCN.
+**Branch**: feature/epic1-pr1.2
 
-### PR #31: Dark Mode Toggle & Preview
-- [ ] Add dark mode switch in wizard
-- [ ] Apply to live preview iframe
+- **Commit 1: Add required ShadCN components**
+  **Commit Message**: "chore: add ShadCN components for nav and footer"
+  **Subtasks** (paste into Cursor IDE):
+  1. Run the command in the terminal: npx shadcn-ui@latest add button sheet dropdown-menu navigation-menu.
+  2. Ensure the components are added to src/components/ui/.
 
-## EPIC 4 – Hooks & Sub-Components Selection (Day 5–7)
-### PR #40: Hooks Multi-Select
-- [ ] Predefined list: useState, useEffect, useRef, custom hook (text input)
-- [ ] Store as { name: string; code?: string }
+- **Commit 2: Create Navbar component**
+  **Commit Message**: "feat: implement Navbar.tsx with responsive design"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/Navbar.tsx.
+  2. Import necessary ShadCN components: import { Button } from '@/components/ui/button'; import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; import { NavigationMenu, NavigationMenuItem, NavigationMenuLink } from '@/components/ui/navigation-menu'; import { Link } from 'react-router-dom'.
+  3. Define Navbar component: export const Navbar = () => { const [isOpen, setIsOpen] = useState(false); return (<header className="sticky top-0 z-50 bg-background border-b"><div className="container mx-auto px-4 py-4 flex justify-between items-center"><Link to="/" className="text-2xl font-bold">Martyn JT</Link><NavigationMenu className="hidden md:flex"><NavigationMenuItem><Link to="/about">About</Link></NavigationMenuItem>...</NavigationMenu><Sheet open={isOpen} onOpenChange={setIsOpen}><SheetTrigger asChild><Button variant="outline" className="md:hidden">Menu</Button></SheetTrigger><SheetContent side="right">Mobile menu links here</SheetContent></Sheet></div></header>); };
+  4. Add mobile menu links similarly using Link.
 
-### PR #41: Shadcn Component Picker
-- [ ] Searchable checkbox list of all shadcn components (Card, Button, Input, Dialog, etc.)
-- [ ] Auto-import detection later (v2)
+- **Commit 3: Create Footer component**
+  **Commit Message**: "feat: implement Footer.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/Footer.tsx.
+  2. Import { Button } from '@/components/ui/button'; import { Link } from 'react-router-dom'.
+  3. Define Footer: export const Footer = () => { return (<footer className="bg-background border-t py-4"><div className="container mx-auto px-4 text-center"><p>&copy; 2026 Martyn Jordan-Taft</p><div className="flex justify-center space-x-4"><a href="https://github.com/martynljt" target="_blank"><Button variant="ghost">GitHub</Button></a>...</div></div></footer>); };
 
-## EPIC 5 – Groq Code Generation Engine (Day 6–10) – THE CORE
-### PR #50: Prompt Template System (Single Responsibility)
-- [ ] src/lib/prompts/extractDesign.system.ts
-- [ ] src/lib/prompts/generateComponent.user.ts (with {{placeholders}})
-- [ ] src/lib/prompts/refineWithRules.system.ts
+- **Commit 4: Integrate Navbar and Footer into layout**
+  **Commit Message**: "feat: add Navbar and Footer to MainLayout"
+  **Subtasks** (paste into Cursor IDE):
+  1. In src/layouts/MainLayout.tsx, import Navbar from '@/components/Navbar'; import Footer from '@/components/Footer'.
+  2. Update MainLayout return: <><Navbar /><main className="flex-grow"><Outlet /></main><Footer /></>.
 
-### PR #51: Generation Service (Liskov + Interface Segregation)
-- [ ] src/lib/groq/generateComponent.ts
-  - [ ] Step 1: Vision → structured JSON
-  - [ ] Step 2: First pass code (Llama 3.1 70B)
-  - [ ] Step 3: Rule engine refinement pass
-  - [ ] Return { code: string; explanation: string }
+## Epic 2: Home Page
+**Description**: Build the landing page.
 
-### PR #52: Rule Engine (Hard-coded MVP → YAML later)
-- [ ] src/lib/rules/enforceShadcnRules.ts
-  - [ ] No inline styles
-  - [ ] Use cn() utility
-  - [ ] Proper Button variants
-  - [ ] Card has p-6, etc.
-  - [ ] Accessibility fixes (aria-label, etc.)
+### PR 2.1: Hero Section
+**PR Description**: Add hero component to home.
+**Branch**: feature/epic2-pr2.1
 
-## EPIC 6 – Live Preview & Code Editor (Day 8–12)
-### PR #60: Live Preview Iframe (Open/Closed + Dependency Inversion)
-- [ ] src/components/preview/PreviewIframe.tsx
-  - [ ] PostMessage API to inject generated code
-  - [ ] Bundled with Vite in memory (esbuild or iframe with full Vite)
-  - [ ] Hot reload on code change
-  - [ ] Error boundary
+- **Commit 1: Create Home page**
+  **Commit Message**: "feat: add Home.tsx page"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/pages/Home.tsx.
+  2. Define export const Home = () => { return <div className="container mx-auto px-4 py-16"><h1>Welcome to Martyn's Portfolio</h1></div>; };
+  3. Update src/router.tsx to use Home for index route.
 
-### PR #61: Monaco Editor or CodeMirror Integration
-- [ ] Install @uiw/react-codemirror + TypeScript
-- [ ] Two-pane layout: left code, right preview
-- [ ] “Copy Code” + “Download .tsx” buttons
+- **Commit 2: Implement Hero component**
+  **Commit Message**: "feat: add Hero.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/Hero.tsx.
+  2. Import { Avatar } from '@/components/ui/avatar'; import { Button } from '@/components/ui/button'; import { Link } from 'react-router-dom'.
+  3. Define Hero: export const Hero = () => { return (<section className="text-center py-20"><Avatar className="mx-auto mb-4"><img src="/profile.jpg" alt="Martyn" /></Avatar><h1 className="text-4xl font-bold">Martyn Jordan-Taft</h1><p className="text-xl">Software Engineer</p><Link to="/contact"><Button>Contact Me</Button></Link></section>); };
+  4. Add placeholder image in public/ or assets/.
 
-### PR #62: Regenerate Button with Feedback
-- [ ] Textarea: “What should I improve?”
-- [ ] Append to prompt → regenerate
+- **Commit 3: Integrate Hero into Home**
+  **Commit Message**: "feat: add Hero to Home page"
+  **Subtasks** (paste into Cursor IDE):
+  1. In src/pages/Home.tsx, import Hero from '@/components/Hero'.
+  2. Add <Hero /> inside the div.
 
-## EPIC 7 – Export & Polish (Day 10–14)
-### PR #70: Export Service
-- [ ] Copy to clipboard (single file)
-- [ ] Download as .zip (component folder structure)
-- [ ] Optional: include index.ts, stories.tsx, test.tsx
+### PR 2.2: Additional Home Sections
+**PR Description**: Add overview sections.
+**Branch**: feature/epic2-pr2.2
 
-### PR #71: Error Handling & Loading States
-- [ ] Global error boundary
-- [ ] Skeleton loaders everywhere
-- [ ] Toast notifications (sonner)
+- **Commit 1: Add OverviewSection component**
+  **Commit Message**: "feat: implement OverviewSection.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/OverviewSection.tsx.
+  2. Import { Card, CardContent, CardHeader } from '@/components/ui/card'.
+  3. Define: export const OverviewSection = () => { return (<section className="py-12"><h2 className="text-3xl font-bold mb-8">Overview</h2><div className="grid md:grid-cols-3 gap-4"><Card><CardHeader>Skills</CardHeader><CardContent>List here</CardContent></Card>...</div></section>); };
 
-### PR #72: Final Polish & Responsiveness
-- [ ] Mobile wizard (vertical steps)
-- [ ] Keyboard navigation (Enter = next)
-- [ ] Confetti on successful generation
+- **Commit 2: Integrate into Home**
+  **Commit Message**: "feat: add OverviewSection to Home"
+  **Subtasks** (paste into Cursor IDE):
+  1. In src/pages/Home.tsx, import OverviewSection from '@/components/OverviewSection'.
+  2. Add <OverviewSection /> below Hero.
 
-## EPIC 8 – Launch & Analytics (Day 13–14)
-### PR #80: Landing Page + Marketing
-- [ ] Hero with live demo embed
-- [ ] Waitlist form (convert to actual wizard)
-- [ ] “Made with ComponentWizard” watermark
+## Epic 3: About Page
+**Description**: Build About page with bio and skills.
 
-### PR #81: Analytics (PostHog)
-- [ ] Track step completion %, drop-off
-- [ ] Generation success rate
+### PR 3.1: Bio and Experience Timeline
+**PR Description**: Add bio and timeline.
+**Branch**: feature/epic3-pr3.1
 
-### PR #82: Deploy to Vercel
-- [ ] vercel.json config
-- [ ] Environment variables
-- [ ] One-click deploy
+- **Commit 1: Create About page**
+  **Commit Message**: "feat: add About.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/pages/About.tsx.
+  2. Define: export const About = () => { return <div className="container mx-auto px-4 py-16"><h1>About Me</h1></div>; };
 
-## FINAL SHIP CHECKLIST
-- [ ] Works with real Figma screenshot → pricing card in <5 min
-- [ ] Generated code uses shadcn components correctly
-- [ ] No inline styles
-- [ ] Mobile responsive
-- [ ] Dark mode works
-- [ ] <8 second generation time
-- [ ] Live preview updates instantly
-- [ ] Copy button works
+- **Commit 2: Add BioSection**
+  **Commit Message**: "feat: implement BioSection.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/BioSection.tsx.
+  2. Define: export const BioSection = () => { return <section className="py-8"><p>Bio text here...</p></section>; };
 
-Ship it!  
-(Then tweet: “I just turned a Figma design into perfect React code in 4 minutes 38 seconds → https://componentwizard.app”)
+- **Commit 3: Add Timeline component**
+  **Commit Message**: "feat: implement Timeline.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/Timeline.tsx.
+  2. Import { Timeline as ShadTimeline } from '@/components/ui/timeline'; (add if needed via shadcn).
+  3. Define data array and render timeline items.
+
+- **Commit 4: Integrate into About**
+  **Commit Message**: "feat: add Bio and Timeline to About"
+  **Subtasks** (paste into Cursor IDE):
+  1. Import BioSection and Timeline into About.tsx.
+  2. Add them to the return.
+
+### PR 3.2: Skills Grid
+**PR Description**: Add skills display.
+**Branch**: feature/epic3-pr3.2
+
+- **Commit 1: Create SkillsGrid**
+  **Commit Message**: "feat: implement SkillsGrid.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/SkillsGrid.tsx.
+  2. Import { Badge } from '@/components/ui/badge'.
+  3. Define: const skills = ['React', 'TS']; return <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{skills.map(s => <Badge key={s}>{s}</Badge>)}</div>;
+
+- **Commit 2: Integrate into About**
+  **Commit Message**: "feat: add SkillsGrid to About"
+  **Subtasks** (paste into Cursor IDE):
+  1. Import SkillsGrid into About.tsx.
+  2. Add <SkillsGrid /> in the return.
+
+## Epic 4: Projects Page
+**Description**: Showcase projects.
+
+### PR 4.1: Reusable Project Card Component
+**PR Description**: Build ProjectCard.
+**Branch**: feature/epic4-pr4.1
+
+- **Commit 1: Create ProjectCard**
+  **Commit Message**: "feat: implement ProjectCard.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/ProjectCard.tsx.
+  2. Import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'; import { Badge } from '@/components/ui/badge'.
+  3. Define interface ProjectProps { title: string; description: string; tags: string[]; link: string; }.
+  4. Export const ProjectCard = ({ title, description, tags, link }: ProjectProps) => { return <Card><CardHeader><CardTitle>{title}</CardTitle></CardHeader><CardContent><CardDescription>{description}</CardDescription><div>{tags.map(t => <Badge key={t}>{t}</Badge>)}</div><a href={link}>View</a></CardContent></Card>; };
+
+### PR 4.2: Projects Grid and Page
+**PR Description**: Assemble projects page.
+**Branch**: feature/epic4-pr4.2
+
+- **Commit 1: Create Projects page**
+  **Commit Message**: "feat: add Projects.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/pages/Projects.tsx.
+  2. Define: export const Projects = () => { return <div className="container mx-auto px-4 py-16"><h1>Projects</h1></div>; };
+
+- **Commit 2: Add projects data and grid**
+  **Commit Message**: "feat: add projects data and render grid"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/lib/projects.ts with export const projects = [{title: 'Proj1', ...}].
+  2. In Projects.tsx, import ProjectCard and projects.
+  3. Add <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{projects.map(p => <ProjectCard key={p.title} {...p} />)}</div>.
+
+## Epic 5: Contact Page
+**Description**: Implement contact form.
+
+### PR 5.1: Contact Form with Validation and Submission
+**PR Description**: Build form.
+**Branch**: feature/epic5-pr5.1
+
+- **Commit 1: Install form dependencies**
+  **Commit Message**: "chore: install react-hook-form and zod"
+  **Subtasks** (paste into Cursor IDE):
+  1. Run: npm install react-hook-form zod @hookform/resolvers.
+
+- **Commit 2: Create ContactForm component**
+  **Commit Message**: "feat: implement ContactForm.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/components/ContactForm.tsx.
+  2. Import { useForm } from 'react-hook-form'; import { zodResolver } from '@hookform/resolvers/zod'; import * as z from 'zod'; import { Input, Textarea, Button, Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/*'.
+  3. Define schema: const formSchema = z.object({ name: z.string().min(1), email: z.string().email(), message: z.string().min(10) });
+  4. In component: const form = useForm({ resolver: zodResolver(formSchema) }); onSubmit = (data) => console.log(data); // Replace with EmailJS later.
+  5. Render <Form {...form}><form onSubmit={form.handleSubmit(onSubmit)}><FormField control={form.control} name="name" render={({ field }) => <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>} /> ... <Button type="submit">Send</Button></form></Form>.
+
+- **Commit 3: Integrate submission service**
+  **Commit Message**: "feat: add EmailJS integration"
+  **Subtasks** (paste into Cursor IDE):
+  1. Run: npm install @emailjs/browser.
+  2. Import emailjs from '@emailjs/browser'.
+  3. In onSubmit, add emailjs.sendForm('service_id', 'template_id', form.ref.current, 'user_id').then(...).
+
+### PR 5.2: Contact Page Assembly
+**PR Description**: Assemble page.
+**Branch**: feature/epic5-pr5.2
+
+- **Commit 1: Create Contact page**
+  **Commit Message**: "feat: add Contact.tsx"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create src/pages/Contact.tsx.
+  2. Define: export const Contact = () => { return <div className="container mx-auto px-4 py-16"><h1>Contact</h1></div>; };
+
+- **Commit 2: Integrate form and extras**
+  **Commit Message**: "feat: add ContactForm to Contact page"
+  **Subtasks** (paste into Cursor IDE):
+  1. Import ContactForm into Contact.tsx.
+  2. Add <ContactForm />.
+  3. Add social links section below.
+
+## Epic 6: Polish, Optimizations, and Deployment
+**Description**: Final touches.
+
+### PR 6.1: SEO, Accessibility, and Performance
+**PR Description**: Optimize site.
+**Branch**: feature/epic6-pr6.1
+
+- **Commit 1: Add react-helmet for SEO**
+  **Commit Message**: "feat: install and add react-helmet-async for meta tags"
+  **Subtasks** (paste into Cursor IDE):
+  1. Run: npm install react-helmet-async.
+  2. Import { HelmetProvider } from 'react-helmet-async' in main.tsx, wrap app.
+  3. In each page, import { Helmet } from 'react-helmet-async', add <Helmet><title>Page Title</title><meta name="description" content="..." /></Helmet>.
+
+- **Commit 2: Image optimization and lazy loading**
+  **Commit Message**: "perf: add lazy loading to images"
+  **Subtasks** (paste into Cursor IDE):
+  1. In components with images (e.g., Hero), add loading="lazy" to img tags.
+  2. Use Vite image plugins if needed, but assume default.
+
+- **Commit 3: Accessibility improvements**
+  **Commit Message**: "a11y: add ARIA labels and keyboard nav"
+  **Subtasks** (paste into Cursor IDE):
+  1. In Navbar, add aria-label to buttons and links.
+  2. Ensure form fields have proper labels.
+
+### PR 6.2: Testing and Deployment
+**PR Description**: Test and deploy.
+**Branch**: feature/epic6-pr6.2
+
+- **Commit 1: Add basic tests**
+  **Commit Message**: "test: add Vitest unit tests for components"
+  **Subtasks** (paste into Cursor IDE):
+  1. Assuming Vitest is set up, create __tests__/Navbar.test.tsx.
+  2. Import { render, screen } from '@testing-library/react'.
+  3. Write test('renders navbar', () => { render(<Navbar />); expect(screen.getByText('Martyn JT')).toBeInTheDocument(); }).
+
+- **Commit 2: Configure deployment**
+  **Commit Message**: "ci: setup Vercel deployment config"
+  **Subtasks** (paste into Cursor IDE):
+  1. Create vercel.json if needed.
+  2. Link repo to Vercel via GitHub (manual step, but add note in README).
